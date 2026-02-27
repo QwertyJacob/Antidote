@@ -154,6 +154,59 @@ acelerate launch training.py \
   --save_path "result/hardened_model"
 ```
 
+### 25-minute Classroom Micro Hands-on (Alternative)
+
+For teaching settings, we recommend a compact live version of the AntiDote bi-level loop that students can run end-to-end in a single session.
+
+**Goal:** let students observe the defender-versus-adversary dynamics in real time.
+
+**Suggested setup (single T4-friendly):**
+
+* **Model:** ~0.5B parameter base model
+* **Safety mini-split:** 8 BeaverTails harmful pairs
+* **Capability mini-split:** 8 LIMA benign examples
+* **Defender:** LoRA rank = 4
+* **Adversary:** tiny hidden dimension hypernetwork
+* **Schedule per block:**
+  1. 5 adversary steps, log `loss_a`
+  2. 5 defender steps, log `loss_d` and `loss_cap`
+* **Total:** 3 blocks (~90 forward/backward passes)
+
+This typically completes in under 10 minutes on a Colab T4, leaving time for interpretation and discussion.
+
+#### What students should plot
+
+Plot `loss_a` versus defender losses (`loss_d`, optionally with `loss_cap`) as training proceeds.
+
+Expected qualitative signature:
+
+* `loss_a` drops quickly at first (adversary discovers an exploit)
+* then plateaus or rises as defender adaptation improves robustness
+
+#### Group challenge (hyperparameter ablation)
+
+Assign one knob per group:
+
+* adversary learning rate
+* defender LoRA rank
+* adversary:defender step ratio (e.g., 2:8 vs 5:5)
+
+Each group reports whether the dynamics indicate:
+
+* **stabilized arms race**,
+* **adversary dominance**, or
+* **defender holds from the start**.
+
+As a class, compare outcomes to infer which knob most affects early-stage robustness, directly mirroring the paper's decoupled-loss ablation insights (Table 5).
+
+#### Logistics risk and mitigation
+
+Because notebook/runtime dependency drift can occur in classroom Colab sessions, prepare:
+
+* a pinned `requirements.txt` cell,
+* a pre-validated fallback notebook,
+* and one precomputed run log for plotting in case of runtime failures.
+
 
 ---
 
@@ -250,4 +303,3 @@ For inquiries related to the paper or code:
 * **Murari Mandal** → [murari.mandalfcs@kiit.ac.in](mailto:murari.mandalfcs@kiit.ac.in)
 
 Alternatively, open a **GitHub Issue** in this repository.
-
